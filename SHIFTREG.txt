@@ -1,0 +1,82 @@
+VERILOG:
+
+module universalshift(a,s,clk,p);
+input [3:0] a;
+input [1:0] s;
+input clk;
+output reg [3:0] p;
+
+initial
+p = 4'b0110;
+
+always @(posedge clk)
+begin
+case(s)
+
+2'b00:
+p <= p;
+
+2'b01:
+begin
+p[3] <= p[0];
+p[2] <= p[3];
+p[1] <= p[2];
+p[0] <= p[1];
+end
+
+2'b10:
+begin
+p[0] <= p[3];
+p[1] <= p[0];
+p[2] <= p[1];
+p[3] <= p[2];
+end
+
+2'b11:
+p <= a;
+
+endcase
+end
+endmodule
+
+
+TESTBENCH:
+
+
+`timescale 1ns/1ps
+
+module universalshift_tb;
+
+reg [3:0] a;
+reg [1:0] s;
+reg clk;
+
+wire [3:0] p;
+
+universalshift uut(a,s,clk,p);
+
+initial
+begin
+$dumpfile("universalshift.vcd");
+$dumpvars(0,universalshift_tb);
+
+clk = 0;
+forever #5 clk = ~clk;
+end
+
+initial
+begin
+a = 4'b1010;
+
+s = 2'b11; #10;
+s = 2'b00; #10;
+s = 2'b01; #10;
+s = 2'b10; #10;
+
+#10 $finish;
+end
+
+initial
+$monitor("Time=%0t s=%b a=%b p=%b",$time,s,a,p);
+
+endmodule

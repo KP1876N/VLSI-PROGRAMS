@@ -1,0 +1,70 @@
+VERILOG:
+
+module jkff(
+input j,
+input k,
+input clk,
+output reg q
+);
+
+always @(posedge clk)
+begin
+case({j,k})
+
+2'b00: q <= q;
+2'b01: q <= 1'b0;
+2'b10: q <= 1'b1;
+2'b11: q <= ~q;
+
+endcase
+end
+
+endmodule
+
+
+
+
+TESTBENCH:
+
+
+`timescale 1ns/1ps
+
+module jkff_tb;
+
+reg j,k,clk;
+wire q;
+
+jkff uut(
+.j(j),
+.k(k),
+.clk(clk),
+.q(q)
+);
+
+initial
+begin
+$dumpfile("jkff.vcd");
+$dumpvars(0,jkff_tb);
+
+clk = 0;
+forever #5 clk = ~clk;
+end
+
+initial
+begin
+j=0; k=0; #10;
+j=0; k=1; #10;
+j=1; k=0; #10;
+j=1; k=1; #10;
+
+#10 $finish;
+end
+
+initial
+begin
+$monitor("Time=%0t clk=%b j=%b k=%b q=%b",
+$time,clk,j,k,q);
+end
+
+endmodule
+

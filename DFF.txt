@@ -1,0 +1,62 @@
+VERILOG:
+
+module dff(
+input d,
+input clk,
+output reg q
+);
+
+always @(posedge clk)
+begin
+q <= d;
+end
+
+endmodule
+
+
+
+
+TESTBENCH:
+
+
+`timescale 1ns/1ps
+
+module dff_tb;
+
+reg d,clk;
+wire q;
+
+dff uut(
+.d(d),
+.clk(clk),
+.q(q)
+);
+
+initial
+begin
+$dumpfile("dff.vcd");
+$dumpvars(0,dff_tb);
+
+clk = 0;
+forever #5 clk = ~clk;
+end
+
+initial
+begin
+d = 0; #10;
+d = 1; #10;
+d = 0; #10;
+d = 1; #10;
+
+#10 $finish;
+end
+
+initial
+begin
+$monitor("Time=%0t clk=%b d=%b q=%b",
+$time,clk,d,q);
+end
+
+endmodule
+
+

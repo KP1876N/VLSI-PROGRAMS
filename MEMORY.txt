@@ -1,0 +1,84 @@
+VERILOG:
+
+module memory8x8(
+input clk,
+input we,
+input [2:0] addr,
+input [7:0] data_in,
+output reg [7:0] data_out
+);
+
+reg [7:0] mem [0:7];
+
+always @(posedge clk)
+begin
+if(we)
+mem[addr] <= data_in;
+end
+
+always @(*)
+begin
+data_out = mem[addr];
+end
+endmodule
+
+
+
+TESTBENCH:
+
+
+`timescale 1ns/1ps
+
+module memory8x8_tb;
+
+reg clk;
+reg we;
+reg [2:0] addr;
+reg [7:0] data_in;
+
+wire [7:0] data_out;
+
+memory8x8 uut(
+.clk(clk),
+.we(we),
+.addr(addr),
+.data_in(data_in),
+.data_out(data_out)
+);
+
+initial
+begin
+$dumpfile("memory8x8.vcd");
+$dumpvars(0,memory8x8_tb);
+
+clk = 0;
+forever #5 clk = ~clk;
+end
+
+initial
+begin
+
+we = 1;
+
+addr = 3'b000; data_in = 8'hAA; #10;
+addr = 3'b001; data_in = 8'h55; #10;
+addr = 3'b010; data_in = 8'hF0; #10;
+addr = 3'b011; data_in = 8'h0F; #10;
+
+we = 0;
+
+addr = 3'b000; #10;
+addr = 3'b001; #10;
+addr = 3'b010; #10;
+addr = 3'b011; #10;
+
+$finish;
+end
+
+initial
+begin
+$monitor("Time=%0t WE=%b Addr=%d DataIn=%h DataOut=%h",
+$time,we,addr,data_in,data_out);
+end
+
+endmodule

@@ -1,0 +1,69 @@
+VERILOG:
+
+module srff(
+input s,
+input r,
+input clk,
+output reg q
+);
+
+always @(posedge clk)
+begin
+case({s,r})
+
+2'b00: q <= q;
+2'b01: q <= 1'b0;
+2'b10: q <= 1'b1;
+2'b11: q <= 1'bx;
+
+endcase
+end
+
+endmodule
+
+
+
+
+TESTBENCH:
+
+
+`timescale 1ns/1ps
+
+module srff_tb;
+
+reg s,r,clk;
+wire q;
+
+srff uut(
+.s(s),
+.r(r),
+.clk(clk),
+.q(q)
+);
+
+initial
+begin
+$dumpfile("srff.vcd");
+$dumpvars(0,srff_tb);
+
+clk = 0;
+forever #5 clk = ~clk;
+end
+
+initial
+begin
+s=0; r=0; #10;
+s=1; r=0; #10;
+s=0; r=1; #10;
+s=0; r=0; #10;
+
+$finish;
+end
+
+initial
+begin
+$monitor("Time=%0t clk=%b S=%b R=%b Q=%b",
+$time,clk,s,r,q);
+end
+
+endmodule

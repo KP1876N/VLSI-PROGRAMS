@@ -1,0 +1,91 @@
+VERILOG:
+
+module seq_mult(
+output reg [15:0] p,
+output reg rdy,
+input clk,
+input reset,
+input [7:0] a,
+input [7:0] b
+);
+
+reg [15:0] multiplicand;
+reg [7:0] multiplier;
+reg [4:0] ctr;
+
+always @(posedge clk or posedge reset)
+begin
+if(reset)
+begin
+p <= 16'b0;
+rdy <= 1'b0;
+ctr <= 5'b0;
+multiplicand <= {8'b0,a};
+multiplier <= b;
+end
+else
+begin
+if(ctr < 8)
+begin
+if(multiplier[ctr])
+p <= p + (multiplicand << ctr);
+
+ctr <= ctr + 1;
+end
+else
+rdy <= 1'b1;
+end
+end
+
+endmodule
+
+
+
+TESTBENCH:
+
+
+`timescale 1ns/1ps
+
+module seq_mult_tb;
+
+reg clk,reset;
+reg [7:0] a,b;
+
+wire [15:0] p;
+wire rdy;
+
+seq_mult uut(
+.p(p),
+.rdy(rdy),
+.clk(clk),
+.reset(reset),
+.a(a),
+.b(b)
+);
+
+initial
+begin
+$dumpfile("seq_mult.vcd");
+$dumpvars(0,seq_mult_tb);
+
+clk = 0;
+forever #5 clk = ~clk;
+end
+
+initial
+begin
+reset = 1;
+a = 8'd15;
+b = 8'd10;
+
+#10 reset = 0;
+#100 $finish;
+end
+
+initial
+begin
+$monitor("Time=%0t A=%d B=%d Product=%d Ready=%b",
+$time,a,b,p,rdy);
+end
+
+endmodule
